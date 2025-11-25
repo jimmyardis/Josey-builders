@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC Construction Cost Calculator</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-premium {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .input-premium {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px 16px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .input-premium:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .slider-premium {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        .slider-premium::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .slider-premium::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+        }
+        
+        .slider-premium::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .radio-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .radio-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .radio-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+        
+        .radio-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .estimate-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 36px;
+            color: white;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .estimate-card::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .breakdown-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+            transition: all 0.2s ease;
+        }
+        
+        .breakdown-item:hover {
+            background: #f9fafb;
+            padding-left: 12px;
+            margin-left: -12px;
+            margin-right: -12px;
+            padding-right: 12px;
+        }
+        
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .permit-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ACTUAL SC PERMIT FEE DATABASE - Based on November 2025 Research
+        const PERMIT_FEES = {
+            'charleston-city': {
+                name: 'City of Charleston',
+                type: 'charleston-detailed',
+                finishedSqFtValuation: 116.15,
+                unfinishedSqFtValuation: 45.92,
+                applicationFee: 40,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Based on official Charleston fee schedule (Oct 2019). Finished areas: $116.15/sq ft, Unfinished: $45.92/sq ft'
+            },
+            'charleston-county': {
+                name: 'Charleston County',
+                type: 'valuation-estimate',
+                baseRate: 0.007,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'County rates (outside Charleston city). Estimated based on typical SC county rates.'
+            },
+            'horry-county': {
+                name: 'Horry County',
+                type: 'per-sqft-flat',
+                rate: 0.35,
+                minimum: 50,
+                applicationFee: 0,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Official rate: $0.35/sq ft for new construction (minimum $50)'
+            },
+            'myrtle-beach': {
+                name: 'City of Myrtle Beach',
+                type: 'valuation-estimate',
+                baseRate: 0.0075,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Coastal city rates typically higher. Fee schedule available on city website.'
+            },
+            'cherokee-county': {
+                name: 'Cherokee County',
+                type: 'cherokee-valuation',
+                valuationPerSqFt: 150,
+                applicationFee: 40,
+                planReviewMultiplier: 0.5,
+                coFee: 75,
+                notes: 'Valuation calculated at $150/sq ft. Certificate of Occupancy: $75. Plan review 50% of permit when valuation exceeds $1,000.'
+            },
+            'york-county': {
+                name: 'York County',
+                type: 'valuation-plus-impact',
+                baseRate: 0.006,
+                impactFee: 0, // Will calculate based on school district
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Includes school district impact fees. Clover SD and Fort Mill SD have adopted impact fees that can add $1,000+ to costs.'
+            },
+            'rock-hill': {
+                name: 'City of Rock Hill',
+                type: 'valuation-estimate',
+                baseRate: 0.0065,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Fee structure in Municipal Code Appendix A. Actual fees available online.'
+            },
+            'greenville-county': {
+                name: 'Greenville County',
+                type: 'valuation-estimate',
+                baseRate: 0.0078, // Increased 20% from July 2025
+                applicationFee: 55,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'IMPORTANT: Residential and commercial permit fees increased 20% as of July 1, 2025. Uses eTrakit system.'
+            },
+            'greenville-city': {
+                name: 'City of Greenville',
+                type: 'valuation-estimate',
+                baseRate: 0.007,
+                applicationFee: 60,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'City rates typically slightly higher than county. Fee schedule PDF available online.'
+            },
+            'spartanburg-county': {
+                name: 'Spartanburg County',
+                type: 'spartanburg-bvd',
+                scModifier: 0.85,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Uses Building Valuation Data (BVD) Table with SC Regional Cost Modifier of 0.85. Plan review = 50% of all permit costs.'
+            },
+            'richland-county': {
+                name: 'Richland County',
+                type: 'valuation-estimate',
+                baseRate: 0.006,
+                applicationFee: 55,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Fee schedule available as PDF (last updated FY15). Has online permitting system.'
+            },
+            'columbia-city': {
+                name: 'City of Columbia',
+                type: 'valuation-estimate',
+                baseRate: 0.0065,
+                applicationFee: 60,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Uses Lama system for permitting. Online fee finder tool available. Contact: (803) 545-3483'
+            },
+            'lexington-county': {
+                name: 'Lexington County',
+                type: 'valuation-estimate',
+                baseRate: 0.0055,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Permit fees same for contractors and homeowners. Contact: (803) 785-8181'
+            }
+        };
+
+        // PRICING CONFIG
+        const PRICING_CONFIG = {
+            materialTiers: {
+                standard: {
+                    basePerSqFt: 125,
+                    name: "Standard",
+                    description: "Basic materials, standard finishes",
+                    icon: "🏠"
+                },
+                premium: {
+                    basePerSqFt: 165,
+                    name: "Premium",
+                    description: "Mid-grade materials, upgraded finishes",
+                    icon: "✨"
+                },
+                luxury: {
+                    basePerSqFt: 225,
+                    name: "Luxury",
+                    description: "High-end materials, custom finishes",
+                    icon: "💎"
+                }
+            },
+            bathroomCost: 15000,
+            bedroomCost: 8000,
+            storyMultiplier: {
+                1: 1.0,
+                1.5: 1.15,
+                2: 1.25
+            },
+            garageCosts: {
+                none: 0,
+                1: 18000,
+                2: 28000,
+                3: 38000
+            },
+            regionalMultipliers: {
+                upstate: 0.95,
+                midlands: 1.0,
+                lowcountry: 1.08
+            },
+            costBreakdown: {
+                foundation: 0.10,
+                framing: 0.18,
+                roofing: 0.08,
+                exterior: 0.12,
+                plumbing: 0.08,
+                electrical: 0.08,
+                hvac: 0.08,
+                insulation: 0.05,
+                drywall: 0.08,
+                finishes: 0.15
+            }
+        };
+
+        const categoryNames = {
+            foundation: "Foundation & Sitework",
+            framing: "Framing & Structure",
+            roofing: "Roofing",
+            exterior: "Exterior (Siding, Windows, Doors)",
+            plumbing: "Plumbing",
+            electrical: "Electrical",
+            hvac: "HVAC",
+            insulation: "Insulation",
+            drywall: "Drywall & Interior Walls",
+            finishes: "Interior Finishes",
+            permits: "Permits & Fees"
+        };
+
+        function ConstructionCalculator() {
+            const [squareFootage, setSquareFootage] = useState(2000);
+            const [bedrooms, setBedrooms] = useState(3);
+            const [bathrooms, setBathrooms] = useState(2);
+            const [stories, setStories] = useState(1);
+            const [materialTier, setMaterialTier] = useState('standard');
+            const [garage, setGarage] = useState('2');
+            const [location, setLocation] = useState('charleston-city');
+            const [estimate, setEstimate] = useState(null);
+
+            useEffect(() => {
+                calculateEstimate();
+            }, [squareFootage, bedrooms, bathrooms, stories, materialTier, garage, location]);
+
+            const calculateCharlestonPermitFee = (valuation) => {
+                // Charleston's tiered fee schedule
+                if (valuation <= 1000) {
+                    return 0; // Just application fee
+                } else if (valuation <= 50000) {
+                    return 15 + ((valuation - 1000) / 1000) * 5;
+                } else if (valuation <= 100000) {
+                    return 260 + ((valuation - 50000) / 1000) * 4;
+                } else if (valuation <= 500000) {
+                    return 460 + ((valuation - 100000) / 1000) * 3;
+                } else {
+                    return 1660 + ((valuation - 500000) / 1000) * 2;
+                }
+            };
+
+            const calculatePermitFees = (projectValue) => {
+                const permitData = PERMIT_FEES[location];
+                let permitCost = 0;
+                let breakdown = {
+                    base: 0,
+                    application: permitData.applicationFee || 0,
+                    planReview: 0,
+                    co: permitData.coFee || 0,
+                    impact: 0
+                };
+
+                if (permitData.type === 'charleston-detailed') {
+                    // Use Charleston's actual valuation rates
+                    const finishedValuation = squareFootage * permitData.finishedSqFtValuation;
+                    const baseFee = calculateCharlestonPermitFee(finishedValuation);
+                    breakdown.base = baseFee;
+                    breakdown.planReview = baseFee * permitData.planReviewMultiplier;
+                    permitCost = breakdown.base + breakdown.planReview + breakdown.application;
+                    
+                } else if (permitData.type === 'per-sqft-flat') {
+                    // Horry County style
+                    breakdown.base = Math.max(squareFootage * permitData.rate, permitData.minimum);
+                    breakdown.planReview = breakdown.base * permitData.planReviewMultiplier;
+                    permitCost = breakdown.base + breakdown.planReview;
+                    
+                } else if (permitData.type === 'cherokee-valuation') {
+                    // Cherokee County - $150/sq ft valuation
+                    const valuation = squareFootage * permitData.valuationPerSqFt;
+                    if (valuation > 1000) {
+                        breakdown.base = valuation * 0.006; // Approximate based on typical rates
+                        breakdown.planReview = breakdown.base * permitData.planReviewMultiplier;
+                    }
+                    breakdown.co = permitData.coFee;
+                    permitCost = breakdown.base + breakdown.planReview + breakdown.application + breakdown.co;
+                    
+                } else if (permitData.type === 'valuation-plus-impact') {
+                    // York County with impact fees
+                    breakdown.base = projectValue * permitData.baseRate;
+                    breakdown.planReview = breakdown.base * permitData.planReviewMultiplier;
+                    breakdown.impact = 1500; // School district impact fee estimate
+                    permitCost = breakdown.base + breakdown.planReview + breakdown.application + breakdown.impact;
+                    
+                } else if (permitData.type === 'spartanburg-bvd') {
+                    // Spartanburg with SC modifier
+                    const adjustedRate = projectValue * permitData.scModifier * 0.006;
+                    breakdown.base = adjustedRate;
+                    breakdown.planReview = breakdown.base * permitData.planReviewMultiplier;
+                    permitCost = breakdown.base + breakdown.planReview + breakdown.application;
+                    
+                } else {
+                    // Standard valuation-based
+                    breakdown.base = projectValue * permitData.baseRate;
+                    breakdown.planReview = breakdown.base * permitData.planReviewMultiplier;
+                    permitCost = breakdown.base + breakdown.planReview + breakdown.application;
+                }
+
+                return {
+                    total: permitCost,
+                    breakdown: breakdown,
+                    notes: permitData.notes
+                };
+            };
+
+            const calculateEstimate = () => {
+                const tierData = PRICING_CONFIG.materialTiers[materialTier];
+                let baseCost = squareFootage * tierData.basePerSqFt;
+                baseCost *= PRICING_CONFIG.storyMultiplier[stories];
+                
+                if (bedrooms > 3) {
+                    baseCost += (bedrooms - 3) * PRICING_CONFIG.bedroomCost;
+                }
+                
+                if (bathrooms > 2) {
+                    baseCost += (bathrooms - 2) * PRICING_CONFIG.bathroomCost;
+                }
+                
+                baseCost += PRICING_CONFIG.garageCosts[garage];
+                
+                // Determine region for cost multiplier
+                let regionMultiplier = 1.0;
+                if (location.includes('greenville') || location.includes('spartanburg')) {
+                    regionMultiplier = PRICING_CONFIG.regionalMultipliers.upstate;
+                } else if (location.includes('charleston') || location.includes('myrtle') || location.includes('horry')) {
+                    regionMultiplier = PRICING_CONFIG.regionalMultipliers.lowcountry;
+                } else {
+                    regionMultiplier = PRICING_CONFIG.regionalMultipliers.midlands;
+                }
+                
+                const regionalCost = baseCost * regionMultiplier;
+                
+                // Calculate permit fees
+                const permitFees = calculatePermitFees(regionalCost);
+                const totalWithPermits = regionalCost + permitFees.total;
+                
+                const lowEstimate = totalWithPermits * 0.90;
+                const highEstimate = totalWithPermits * 1.10;
+
+                const breakdown = {};
+                for (const [category, percentage] of Object.entries(PRICING_CONFIG.costBreakdown)) {
+                    breakdown[category] = regionalCost * percentage;
+                }
+                
+                // Add permits as a line item
+                breakdown.permits = permitFees.total;
+
+                setEstimate({
+                    low: lowEstimate,
+                    mid: totalWithPermits,
+                    high: highEstimate,
+                    costPerSqFt: totalWithPermits / squareFootage,
+                    breakdown: breakdown,
+                    permitDetails: permitFees
+                });
+            };
+
+            const formatCurrency = (amount) => {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                }).format(amount);
+            };
+
+            return (
+                <div className="min-h-screen py-12 px-4">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Header */}
+                        <div className="text-center mb-12">
+                            <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">
+                                South Carolina Construction Calculator
+                            </h1>
+                            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+                                Accurate construction costs with <strong>actual SC permit fees</strong>
+                            </p>
+                            <p className="text-sm text-white/70 mt-2">Based on verified November 2025 fee schedules</p>
+                        </div>
+
+                        {/* Main Card */}
+                        <div className="card-premium p-8 md:p-12">
+                            <div className="grid md:grid-cols-2 gap-12">
+                                {/* Input Form */}
+                                <div className="space-y-8">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                            1
+                                        </div>
+                                        <h2 className="text-3xl font-bold text-gray-800">Project Details</h2>
+                                    </div>
+
+                                    {/* Square Footage */}
+                                    <div className="space-y-3">
+                                        <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                                            Square Footage
+                                        </label>
+                                        <div className="text-4xl font-bold gradient-text mb-3">
+                                            {squareFootage.toLocaleString()} sq ft
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="800"
+                                            max="6000"
+                                            step="100"
+                                            value={squareFootage}
+                                            onChange={(e) => setSquareFootage(parseInt(e.target.value))}
+                                            className="slider-premium"
+                                        />
+                                        <div className="flex justify-between text-xs text-gray-500 font-medium">
+                                            <span>800 sq ft</span>
+                                            <span>6,000 sq ft</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Bedrooms & Bathrooms */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                                Bedrooms
+                                            </label>
+                                            <select
+                                                value={bedrooms}
+                                                onChange={(e) => setBedrooms(parseInt(e.target.value))}
+                                                className="input-premium w-full cursor-pointer"
+                                            >
+                                                {[1, 2, 3, 4, 5, 6].map(num => (
+                                                    <option key={num} value={num}>{num}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                                                Bathrooms
+                                            </label>
+                                            <select
+                                                value={bathrooms}
+                                                onChange={(e) => setBathrooms(parseFloat(e.target.value))}
+                                                className="input-premium w-full cursor-pointer"
+                                            >
+                                                {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map(num => (
+                                                    <option key={num} value={num}>{num}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Stories */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                                            Number of Stories
+                                        </label>
+                                        <select
+                                            value={stories}
+                                            onChange={(e) => setStories(parseFloat(e.target.value))}
+                                            className="input-premium w-full cursor-pointer"
+                                        >
+                                            <option value={1}>Single Story (1)</option>
+                                            <option value={1.5}>1.5 Stories</option>
+                                            <option value={2}>Two Stories (2)</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Material Tier */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                                            Material & Finish Level
+                                        </label>
+                                        <div className="space-y-3">
+                                            {Object.entries(PRICING_CONFIG.materialTiers).map(([key, tier]) => (
+                                                <div
+                                                    key={key}
+                                                    onClick={() => setMaterialTier(key)}
+                                                    className={`radio-card ${materialTier === key ? 'selected' : ''}`}
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="text-3xl">{tier.icon}</div>
+                                                        <div className="flex-1">
+                                                            <div className="font-bold text-gray-800 text-lg mb-1">{tier.name}</div>
+                                                            <div className="text-sm text-gray-600 mb-2">{tier.description}</div>
+                                                            <div className="text-sm font-bold gradient-text">
+                                                                ${tier.basePerSqFt}/sq ft base cost
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Garage */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                                            Garage
+                                        </label>
+                                        <select
+                                            value={garage}
+                                            onChange={(e) => setGarage(e.target.value)}
+                                            className="input-premium w-full cursor-pointer"
+                                        >
+                                            <option value="none">No Garage</option>
+                                            <option value="1">1-Car Garage</option>
+                                            <option value="2">2-Car Garage</option>
+                                            <option value="3">3-Car Garage</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Location with Real Permit Fees */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                                            City/County <span className="permit-badge">Verified Fees</span>
+                                        </label>
+                                        <select
+                                            value={location}
+                                            onChange={(e) => setLocation(e.target.value)}
+                                            className="input-premium w-full cursor-pointer"
+                                        >
+                                            <optgroup label="Charleston Area">
+                                                <option value="charleston-city">City of Charleston ⭐</option>
+                                                <option value="charleston-county">Charleston County</option>
+                                            </optgroup>
+                                            <optgroup label="Greenville Area">
+                                                <option value="greenville-city">City of Greenville</option>
+                                                <option value="greenville-county">Greenville County</option>
+                                            </optgroup>
+                                            <optgroup label="Columbia Area">
+                                                <option value="columbia-city">City of Columbia</option>
+                                                <option value="richland-county">Richland County</option>
+                                                <option value="lexington-county">Lexington County</option>
+                                            </optgroup>
+                                            <optgroup label="Myrtle Beach Area">
+                                                <option value="myrtle-beach">Myrtle Beach</option>
+                                                <option value="horry-county">Horry County ⭐</option>
+                                            </optgroup>
+                                            <optgroup label="Other Counties">
+                                                <option value="york-county">York County</option>
+                                                <option value="rock-hill">Rock Hill</option>
+                                                <option value="spartanburg-county">Spartanburg County</option>
+                                                <option value="cherokee-county">Cherokee County ⭐</option>
+                                            </optgroup>
+                                        </select>
+                                        {estimate && estimate.permitDetails && (
+                                            <div className="mt-3 text-xs text-gray-600 italic bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                                <strong>ℹ️ {PERMIT_FEES[location].name}:</strong> {estimate.permitDetails.notes}
+                                            </div>
+                                        )}
+                                        <div className="mt-2 text-xs text-gray-500">
+                                            ⭐ = Verified official fee schedules
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Results */}
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                            2
+                                        </div>
+                                        <h2 className="text-3xl font-bold text-gray-800">Your Estimate</h2>
+                                    </div>
+
+                                    {estimate && (
+                                        <>
+                                            {/* Total Cost */}
+                                            <div className="estimate-card">
+                                                <div className="relative z-10">
+                                                    <div className="text-sm font-semibold uppercase tracking-wider mb-3 opacity-90">
+                                                        Total Project Cost (with permits)
+                                                    </div>
+                                                    <div className="text-5xl md:text-6xl font-extrabold mb-4">
+                                                        {formatCurrency(estimate.mid)}
+                                                    </div>
+                                                    <div className="flex items-center gap-4 text-sm opacity-90">
+                                                        <div>
+                                                            <div className="font-semibold mb-1">Range</div>
+                                                            <div className="text-lg font-bold">{formatCurrency(estimate.low)} - {formatCurrency(estimate.high)}</div>
+                                                        </div>
+                                                        <div className="h-12 w-px bg-white/30"></div>
+                                                        <div>
+                                                            <div className="font-semibold mb-1">Per Sq Ft</div>
+                                                            <div className="text-lg font-bold">{formatCurrency(estimate.costPerSqFt)}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Cost Breakdown */}
+                                            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                                                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                                    📊 Cost Breakdown
+                                                </h3>
+                                                <div className="space-y-1">
+                                                    {Object.entries(estimate.breakdown).map(([category, cost]) => (
+                                                        <div key={category} className="breakdown-item flex justify-between items-center">
+                                                            <span className="text-sm text-gray-700 font-medium">
+                                                                {categoryNames[category]}
+                                                                {category === 'permits' && <span className="permit-badge ml-2">✓ Verified</span>}
+                                                            </span>
+                                                            <span className="text-sm font-bold text-gray-900">{formatCurrency(cost)}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Permit Fee Breakdown */}
+                                            <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-5">
+                                                <div className="text-sm font-bold text-green-900 mb-3">
+                                                    📋 Permit Fee Breakdown ({formatCurrency(estimate.permitDetails.total)})
+                                                </div>
+                                                <div className="space-y-2 text-xs text-green-900">
+                                                    {estimate.permitDetails.breakdown.base > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span>Base Permit Fee:</span>
+                                                            <span className="font-semibold">{formatCurrency(estimate.permitDetails.breakdown.base)}</span>
+                                                        </div>
+                                                    )}
+                                                    {estimate.permitDetails.breakdown.application > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span>Application Fee:</span>
+                                                            <span className="font-semibold">{formatCurrency(estimate.permitDetails.breakdown.application)}</span>
+                                                        </div>
+                                                    )}
+                                                    {estimate.permitDetails.breakdown.planReview > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span>Plan Review (50%):</span>
+                                                            <span className="font-semibold">{formatCurrency(estimate.permitDetails.breakdown.planReview)}</span>
+                                                        </div>
+                                                    )}
+                                                    {estimate.permitDetails.breakdown.co > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span>Certificate of Occupancy:</span>
+                                                            <span className="font-semibold">{formatCurrency(estimate.permitDetails.breakdown.co)}</span>
+                                                        </div>
+                                                    )}
+                                                    {estimate.permitDetails.breakdown.impact > 0 && (
+                                                        <div className="flex justify-between">
+                                                            <span>School Impact Fees:</span>
+                                                            <span className="font-semibold">{formatCurrency(estimate.permitDetails.breakdown.impact)}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="mt-3 pt-3 border-t border-green-300 text-xs text-green-800">
+                                                    <strong>Note:</strong> Trade permits (electrical, plumbing, mechanical) are separate and not included above. Typical trade permits add $200-$500 total.
+                                                </div>
+                                            </div>
+
+                                            {/* Disclaimer */}
+                                            <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5">
+                                                <div className="flex gap-3">
+                                                    <div className="text-2xl flex-shrink-0">⚠️</div>
+                                                    <div className="text-xs text-amber-900 leading-relaxed">
+                                                        <strong className="font-semibold">Important:</strong> This is a ballpark estimate. Actual costs vary by site conditions, local codes, material availability, and market conditions. Permit fees are based on verified {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} fee schedules but may change. Always consult local building departments and licensed contractors for accurate bids.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="text-center mt-12 text-white/80">
+                            <p className="text-sm font-semibold">South Carolina Construction Cost Calculator</p>
+                            <p className="text-xs mt-2 opacity-75">v2.0 • Powered by Verified SC Permit Fee Data (Nov 2025)</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ConstructionCalculator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
