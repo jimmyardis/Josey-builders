@@ -25,6 +25,28 @@
         body { font-family: 'Inter', sans-serif; background-color: #fafaf9; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #1c1917; /* stone-900 */
+            cursor: pointer;
+            margin-top: -10px; 
+            box-shadow: 0 0 0 4px #e7e5e4; /* stone-200 ring */
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #d6d3d1; /* stone-300 */
+        }
     </style>
 </head>
 <body>
@@ -54,18 +76,13 @@
             const [iconName, setIconName] = useState(null);
 
             useEffect(() => {
-                if (window.lucide && window.lucide.icons) {
-                    // Convert kebab-case to PascalCase for Lucide icons object keys if needed, 
-                    // but lucide.icons usually stores them as ShieldCheck, Hammer, etc.
-                    // For simplicity in this script we map manual names or ensure proper case usage in props
-                    setIconName(name); 
-                }
+                setIconName(name); 
             }, [name]);
 
-            // Simple SVG fallbacks if Lucide script isn't fully parsed yet or using direct SVG
+            // SVG Fallbacks
             if (name === 'Shield') return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
             if (name === 'Hammer') return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25V2.46V2a2 2 0 0 0-2-2H3v14c9 2 9 8 13 8h1"/><path d="M15 11l-3-3"/></svg>;
-            if (name === 'Ruler') return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>;
+            if (name === 'FileText') return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>;
             if (name === 'Phone') return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
             if (name === 'Check') return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"/></svg>;
             if (name === 'Menu') return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>;
@@ -85,6 +102,105 @@
                 <button className={`${baseStyles} ${variants[variant]} ${className}`} {...props}>
                     {children}
                 </button>
+            );
+        };
+
+        const RoofCalculator = () => {
+            const [sqFt, setSqFt] = useState(2500);
+            const [material, setMaterial] = useState('asphalt'); 
+            const [cost, setCost] = useState(0);
+
+            // Estimated Cost per sq foot (Materials + Labor)
+            // These are ballpark estimates for the sake of the demo
+            const prices = {
+                asphalt: 6.50,  
+                metal: 12.00,   
+                tile: 22.00    
+            };
+
+            useEffect(() => {
+                const baseCost = sqFt * prices[material];
+                setCost(baseCost);
+            }, [sqFt, material]);
+
+            const formatCurrency = (num) => {
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+            };
+
+            return (
+                <div className="bg-stone-100 p-8 md:p-12 border border-stone-200 shadow-xl my-12">
+                    <div className="flex flex-col md:flex-row gap-12">
+                        {/* Controls */}
+                        <div className="flex-1 space-y-8">
+                            <div>
+                                <h3 className="text-2xl font-black text-stone-900 mb-6 uppercase tracking-tight">Roof Replacement Estimator</h3>
+                                <p className="text-stone-600 mb-8 text-sm">
+                                    Get a preliminary estimate for your roof replacement. Select your home size and preferred material.
+                                </p>
+                            </div>
+
+                            {/* Square Footage Slider */}
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-end">
+                                    <label className="text-xs font-bold uppercase tracking-wider text-stone-500">Roof Area (Approx)</label>
+                                    <span className="text-2xl font-bold text-stone-900">{sqFt.toLocaleString()} <span className="text-sm text-stone-500 font-normal">sq ft</span></span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="1000" 
+                                    max="6000" 
+                                    step="100" 
+                                    value={sqFt}
+                                    onChange={(e) => setSqFt(Number(e.target.value))}
+                                    className="w-full"
+                                />
+                                <div className="flex justify-between text-xs text-stone-400 font-bold uppercase">
+                                    <span>1,000</span>
+                                    <span>6,000+</span>
+                                </div>
+                            </div>
+
+                            {/* Material Selection */}
+                            <div className="space-y-4">
+                                <label className="text-xs font-bold uppercase tracking-wider text-stone-500">Material Type</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['asphalt', 'metal', 'tile'].map((m) => (
+                                        <button
+                                            key={m}
+                                            onClick={() => setMaterial(m)}
+                                            className={`py-3 px-2 text-xs font-bold uppercase tracking-wider border-2 transition-all ${
+                                                material === m 
+                                                ? 'border-stone-900 bg-stone-900 text-white' 
+                                                : 'border-stone-300 text-stone-500 hover:border-stone-900 hover:text-stone-900'
+                                            }`}
+                                        >
+                                            {m}
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="text-xs text-stone-500 italic">
+                                    {material === 'asphalt' && "Architectural shingles. Reliable, affordable, and versatile."}
+                                    {material === 'metal' && "Standing seam metal. Superior durability and modern aesthetic."}
+                                    {material === 'tile' && "Premium slate or clay tile. The ultimate in longevity and luxury."}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Result Display */}
+                        <div className="flex-1 bg-white p-8 border border-stone-200 flex flex-col justify-center items-center text-center">
+                            <div className="mb-2 text-xs font-bold uppercase tracking-widest text-stone-400">Estimated Project Cost</div>
+                            <div className="text-4xl md:text-6xl font-black text-stone-900 mb-6 tracking-tighter">
+                                {formatCurrency(cost)}*
+                            </div>
+                            <Button onClick={() => document.getElementById('contact').scrollIntoView({behavior: 'smooth'})} className="w-full md:w-auto">
+                                Schedule Quote
+                            </Button>
+                            <p className="mt-6 text-[10px] text-stone-400 uppercase tracking-wide leading-tight max-w-xs mx-auto">
+                                *Ballpark estimate for planning only. Does not include removal of existing layers, decking repair, or complex roof lines.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             );
         };
 
@@ -202,14 +318,21 @@
                                 </div>
                                 <div className="space-y-4">
                                     <div className="w-12 h-12 bg-stone-100 flex items-center justify-center text-stone-900 mb-6">
-                                        <Icon name="Ruler" className="w-6 h-6" />
+                                        <Icon name="FileText" className="w-6 h-6" />
                                     </div>
-                                    <h3 className="text-2xl font-bold text-stone-900">Digital Analysis</h3>
+                                    <h3 className="text-2xl font-bold text-stone-900">Transparent Pricing</h3>
                                     <p className="text-stone-600 leading-relaxed">
-                                        We use drone imagery and digital measurements to ensure 100% accuracy in our quotes and material orders. No hidden costs.
+                                        Straightforward and fair. No hidden fees or surprise change orders. We provide detailed, line-item estimates so you know exactly what you're paying for.
                                     </p>
                                 </div>
                             </div>
+                        </div>
+                    </section>
+                    
+                    {/* Calculator Section */}
+                    <section className="bg-white pb-20 px-6">
+                        <div className="max-w-7xl mx-auto">
+                            <RoofCalculator />
                         </div>
                     </section>
 
