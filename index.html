@@ -50,27 +50,11 @@
         body { font-family: 'Inter', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         html { scroll-behavior: smooth; }
-        
-        /* LOADING SPINNER */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #1c1917;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-900 selection:bg-stone-900 selection:text-white">
 
-    <div id="root">
-        <div class="h-screen w-full flex flex-col items-center justify-center gap-4">
-            <div class="loader"></div>
-            <p class="text-stone-400 text-sm font-mono tracking-widest uppercase animate-pulse">Loading Josey Builders...</p>
-        </div>
-    </div>
+    <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
@@ -83,8 +67,10 @@
         const Mail = (p) => <Icon {...p}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></Icon>;
         const MapPin = (p) => <Icon {...p}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></Icon>;
         const Hammer = (p) => <Icon {...p}><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25V2.46V2a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2v.46c0 .85-.33 1.65-.93 2.25L9.5 6"/><path d="M15 12.5 10.5 8"/></Icon>;
+        const Ruler = (p) => <Icon {...p}><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></Icon>;
         const HardHat = (p) => <Icon {...p}><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"/><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"/><path d="M4 15v-3a6 6 0 0 1 6-6h0"/><path d="M14 6h0a6 6 0 0 1 6 6v3"/></Icon>;
         const ArrowRight = (p) => <Icon {...p}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></Icon>;
+        const CheckCircle2 = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Icon>;
         const Menu = (p) => <Icon {...p}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></Icon>;
         const X = (p) => <Icon {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Icon>;
         const Calculator = (p) => <Icon {...p}><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></Icon>;
@@ -94,20 +80,131 @@
 
         // --- CALCULATOR DATA ---
         const PERMIT_FEES = {
-            'charleston-city': { name: 'City of Charleston', type: 'charleston-detailed', finishedSqFtValuation: 116.15, unfinishedSqFtValuation: 45.92, applicationFee: 40, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on official Charleston fee schedule. Finished areas: $116.15/sq ft.' },
-            'charleston-county': { name: 'Charleston County', type: 'valuation-estimate', baseRate: 0.007, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'County rates (outside Charleston city).' },
-            'horry-county': { name: 'Horry County', type: 'per-sqft-flat', rate: 0.35, minimum: 50, applicationFee: 0, planReviewMultiplier: 0.5, coFee: 0, notes: 'Official rate: $0.35/sq ft (min $50).' },
-            'myrtle-beach': { name: 'City of Myrtle Beach', type: 'valuation-estimate', baseRate: 0.0075, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Coastal city rates.' },
-            'cherokee-county': { name: 'Cherokee County', type: 'cherokee-valuation', valuationPerSqFt: 150, applicationFee: 40, planReviewMultiplier: 0.5, coFee: 75, notes: 'Valuation at $150/sq ft. CO: $75.' },
-            'york-county': { name: 'York County', type: 'valuation-plus-impact', baseRate: 0.006, impactFee: 0, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Includes school district impact fees estimate.' },
-            'rock-hill': { name: 'City of Rock Hill', type: 'valuation-estimate', baseRate: 0.0065, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on Municipal Code Appendix A.' },
-            'greenville-county': { name: 'Greenville County', type: 'valuation-estimate', baseRate: 0.0078, applicationFee: 55, planReviewMultiplier: 0.5, coFee: 0, notes: 'Includes July 2025 20% increase.' },
-            'greenville-city': { name: 'City of Greenville', type: 'valuation-estimate', baseRate: 0.007, applicationFee: 60, planReviewMultiplier: 0.5, coFee: 0, notes: 'City rates typically higher than county.' },
-            'spartanburg-county': { name: 'Spartanburg County', type: 'spartanburg-bvd', scModifier: 0.85, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Uses BVD Table with 0.85 Modifier.' },
-            'richland-county': { name: 'Richland County', type: 'valuation-estimate', baseRate: 0.006, applicationFee: 55, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on FY15 schedule.' },
-            'columbia-city': { name: 'City of Columbia', type: 'valuation-estimate', baseRate: 0.0065, applicationFee: 60, planReviewMultiplier: 0.5, coFee: 0, notes: 'Uses Lama system rates.' },
-            'lexington-county': { name: 'Lexington County', type: 'valuation-estimate', baseRate: 0.0055, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Same fees for contractors/homeowners.' },
-            'other-sc': { name: 'Other / Unlisted Location', type: 'none', notes: 'Permit fees vary by municipality and are NOT included in this estimate.' }
+            'charleston-city': {
+                name: 'City of Charleston',
+                type: 'charleston-detailed',
+                finishedSqFtValuation: 116.15,
+                unfinishedSqFtValuation: 45.92,
+                applicationFee: 40,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Based on official Charleston fee schedule. Finished areas: $116.15/sq ft.'
+            },
+            'charleston-county': {
+                name: 'Charleston County',
+                type: 'valuation-estimate',
+                baseRate: 0.007,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'County rates (outside Charleston city).'
+            },
+            'horry-county': {
+                name: 'Horry County',
+                type: 'per-sqft-flat',
+                rate: 0.35,
+                minimum: 50,
+                applicationFee: 0,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Official rate: $0.35/sq ft (min $50).'
+            },
+            'myrtle-beach': {
+                name: 'City of Myrtle Beach',
+                type: 'valuation-estimate',
+                baseRate: 0.0075,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Coastal city rates.'
+            },
+            'cherokee-county': {
+                name: 'Cherokee County',
+                type: 'cherokee-valuation',
+                valuationPerSqFt: 150,
+                applicationFee: 40,
+                planReviewMultiplier: 0.5,
+                coFee: 75,
+                notes: 'Valuation at $150/sq ft. CO: $75.'
+            },
+            'york-county': {
+                name: 'York County',
+                type: 'valuation-plus-impact',
+                baseRate: 0.006,
+                impactFee: 0,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Includes school district impact fees estimate.'
+            },
+            'rock-hill': {
+                name: 'City of Rock Hill',
+                type: 'valuation-estimate',
+                baseRate: 0.0065,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Based on Municipal Code Appendix A.'
+            },
+            'greenville-county': {
+                name: 'Greenville County',
+                type: 'valuation-estimate',
+                baseRate: 0.0078,
+                applicationFee: 55,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Includes July 2025 20% increase.'
+            },
+            'greenville-city': {
+                name: 'City of Greenville',
+                type: 'valuation-estimate',
+                baseRate: 0.007,
+                applicationFee: 60,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'City rates typically higher than county.'
+            },
+            'spartanburg-county': {
+                name: 'Spartanburg County',
+                type: 'spartanburg-bvd',
+                scModifier: 0.85,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Uses BVD Table with 0.85 Modifier.'
+            },
+            'richland-county': {
+                name: 'Richland County',
+                type: 'valuation-estimate',
+                baseRate: 0.006,
+                applicationFee: 55,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Based on FY15 schedule.'
+            },
+            'columbia-city': {
+                name: 'City of Columbia',
+                type: 'valuation-estimate',
+                baseRate: 0.0065,
+                applicationFee: 60,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Uses Lama system rates.'
+            },
+            'lexington-county': {
+                name: 'Lexington County',
+                type: 'valuation-estimate',
+                baseRate: 0.0055,
+                applicationFee: 50,
+                planReviewMultiplier: 0.5,
+                coFee: 0,
+                notes: 'Same fees for contractors/homeowners.'
+            },
+            'other-sc': {
+                name: 'Other / Unlisted Location',
+                type: 'none',
+                notes: 'Permit fees vary by municipality and are NOT included in this estimate.'
+            }
         };
 
         const PRICING_CONFIG = {
@@ -411,24 +508,15 @@
           ];
 
           return (
-            <div className="min-h-screen bg-stone-50 text-stone-900 font-sans selection:bg-stone-900 selection:text-white overflow-x-hidden pt-10">
-              
-              {/* --- NEW: ALERT BANNER --- */}
-              <div className="fixed top-0 left-0 w-full bg-stone-900 text-stone-50 z-[60] py-2 px-4 text-center">
-                  <a href="roofing.html" className="text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:text-stone-300 transition-colors">
-                      Check out our new Roofing Calculator <ArrowRight size={12} />
-                  </a>
-              </div>
-
+            <div className="min-h-screen bg-stone-50 text-stone-900 font-sans selection:bg-stone-900 selection:text-white overflow-x-hidden">
               <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-0 overflow-hidden opacity-[0.03]">
                  <LogoSVG className="w-[150vw] md:w-[90vw] text-black transform -rotate-12" />
               </div>
 
-              {/* NAV: Adjusted top position to account for Banner */}
-              <nav className={`fixed w-full z-50 transition-all duration-300 top-8 ${scrolled ? 'bg-stone-50/95 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-8'}`}>
+              <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-stone-50/95 backdrop-blur-md py-6 shadow-sm' : 'bg-transparent py-10'}`}>
                 <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
                   <div className="flex items-center z-50">
-                     <a href="#" className="block pl-1"><LogoSVG className="h-12 w-auto transition-transform hover:scale-105" color="#1c1917" /></a>
+                     <a href="#" className="block pl-1"><LogoSVG className="h-14 w-auto transition-transform hover:scale-105" color="#1c1917" /></a>
                   </div>
                   <div className="hidden md:flex gap-12 text-sm font-medium tracking-widest uppercase items-center">
                     {navLinks.map(link => (
@@ -442,7 +530,6 @@
                     {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
                   </button>
                 </div>
-                {/* Mobile Menu */}
                 <div className={`fixed inset-0 bg-stone-50 z-40 flex flex-col items-center justify-center gap-8 text-2xl font-light transition-transform duration-500 md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                   {navLinks.map(link => (
                     <a key={link.name} href={link.href} onClick={() => setIsMenuOpen(false)} className="hover:text-stone-500 tracking-widest uppercase">{link.name}</a>
@@ -513,6 +600,10 @@
                   <FadeIn>
                     <div className="inline-block border border-stone-700 px-4 py-1 rounded-full mb-8"><span className="text-xs font-mono uppercase tracking-widest text-stone-400">Family Owned & Operated</span></div>
                     <h2 className="text-3xl md:text-5xl font-light leading-tight mb-12">"We don't just build houses. We build the backdrop for your family's memories."</h2>
+                    <div className="grid md:grid-cols-2 gap-12 text-left text-stone-400 text-sm md:text-base leading-relaxed">
+                      <p>Founded on the principles of integrity and hard work, Josey Builders has served Sumter and the Midlands for over two and a half decades.</p>
+                      <p>Our "no-nonsense" approach means clear communication, transparent pricing, and a job site that is kept clean and safe.</p>
+                    </div>
                   </FadeIn>
                 </div>
               </Section>
@@ -532,6 +623,7 @@
                         <h3 className="text-3xl font-bold mb-6">Ready to build?</h3>
                         <div className="space-y-6 mb-12">
                           <a href="tel:8039832862" className="flex items-center gap-4 text-xl font-medium hover:text-stone-600 transition-colors"><div className="w-12 h-12 bg-stone-100 flex items-center justify-center"><Phone size={20} /></div>803-983-2862</a>
+                          <a href="mailto:Josey.builders@yahoo.com" className="flex items-center gap-4 text-xl font-medium hover:text-stone-600 transition-colors"><div className="w-12 h-12 bg-stone-100 flex items-center justify-center"><Mail size={20} /></div>Josey.builders@yahoo.com</a>
                           <div className="flex items-center gap-4 text-xl font-medium"><div className="w-12 h-12 bg-stone-100 flex items-center justify-center"><MapPin size={20} /></div>Sumter, SC</div>
                         </div>
                         <div className="w-full h-64 bg-stone-100 border border-stone-200 relative overflow-hidden">
@@ -543,10 +635,13 @@
                     <FadeIn delay={200}>
                       <form className="bg-white p-8 md:p-12 shadow-2xl shadow-stone-200/50 border border-stone-100">
                         <div className="space-y-6">
-                            <input type="text" placeholder="Name" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" />
-                            <input type="email" placeholder="Email" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" />
-                            <textarea rows="4" placeholder="Message" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent resize-none"></textarea>
-                            <button className="w-full bg-stone-900 text-white font-bold tracking-widest uppercase py-4 hover:bg-stone-800 transition-colors mt-4">Send Request</button>
+                          <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">First Name</label><input type="text" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" /></div>
+                            <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">Last Name</label><input type="text" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" /></div>
+                          </div>
+                          <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">Email</label><input type="email" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" /></div>
+                          <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">Message</label><textarea rows="4" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent resize-none"></textarea></div>
+                          <button className="w-full bg-stone-900 text-white font-bold tracking-widest uppercase py-4 hover:bg-stone-800 transition-colors mt-4">Send Request</button>
                         </div>
                       </form>
                     </FadeIn>
