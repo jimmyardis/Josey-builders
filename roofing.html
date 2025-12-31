@@ -66,23 +66,7 @@
         const Home = (p) => <Icon {...p}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></Icon>;
 
         // --- CALCULATOR DATA ---
-        const PERMIT_FEES = {
-            'charleston-city': { name: 'City of Charleston', type: 'charleston-detailed', finishedSqFtValuation: 116.15, applicationFee: 40, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on official Charleston fee schedule.' },
-            'charleston-county': { name: 'Charleston County', type: 'valuation-estimate', baseRate: 0.007, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'County rates (outside Charleston city).' },
-            'horry-county': { name: 'Horry County', type: 'per-sqft-flat', rate: 0.35, minimum: 50, applicationFee: 0, planReviewMultiplier: 0.5, coFee: 0, notes: 'Official rate: $0.35/sq ft (min $50).' },
-            'myrtle-beach': { name: 'City of Myrtle Beach', type: 'valuation-estimate', baseRate: 0.0075, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Coastal city rates.' },
-            'cherokee-county': { name: 'Cherokee County', type: 'cherokee-valuation', valuationPerSqFt: 150, applicationFee: 40, planReviewMultiplier: 0.5, coFee: 75, notes: 'Valuation at $150/sq ft. CO: $75.' },
-            'york-county': { name: 'York County', type: 'valuation-plus-impact', baseRate: 0.006, impactFee: 0, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Includes school district impact fees.' },
-            'rock-hill': { name: 'City of Rock Hill', type: 'valuation-estimate', baseRate: 0.0065, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on Municipal Code Appendix A.' },
-            'greenville-county': { name: 'Greenville County', type: 'valuation-estimate', baseRate: 0.0078, applicationFee: 55, planReviewMultiplier: 0.5, coFee: 0, notes: 'Includes July 2025 20% increase.' },
-            'greenville-city': { name: 'City of Greenville', type: 'valuation-estimate', baseRate: 0.007, applicationFee: 60, planReviewMultiplier: 0.5, coFee: 0, notes: 'City rates typically higher than county.' },
-            'spartanburg-county': { name: 'Spartanburg County', type: 'spartanburg-bvd', scModifier: 0.85, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Uses BVD Table with 0.85 Modifier.' },
-            'richland-county': { name: 'Richland County', type: 'valuation-estimate', baseRate: 0.006, applicationFee: 55, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on FY15 schedule.' },
-            'columbia-city': { name: 'City of Columbia', type: 'valuation-estimate', baseRate: 0.0065, applicationFee: 60, planReviewMultiplier: 0.5, coFee: 0, notes: 'Uses Lama system rates.' },
-            'lexington-county': { name: 'Lexington County', type: 'valuation-estimate', baseRate: 0.0055, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Same fees for contractors/homeowners.' },
-            'other-sc': { name: 'Other / Unlisted Location', type: 'none', notes: 'Permit fees vary by municipality and are NOT included in this estimate.' }
-        };
-
+        // Simplified config - removed permit fee specifics but kept structure for location selection
         const ROOFING_CONFIG = {
             materials: {
                 threeTab: { name: "3-Tab Shingle", costPerSq: 375, desc: "Economy protection (20-25yr)" },
@@ -144,32 +128,6 @@
           const [location, setLocation] = useState('charleston-city');
           const [estimate, setEstimate] = useState(null);
 
-          const calculatePermitFees = (projectValue) => {
-              const permitData = PERMIT_FEES[location];
-              let breakdown = { base: 0, application: 0, planReview: 0, co: 0, impact: 0 };
-              
-              if (!permitData || permitData.type === 'none') {
-                  return { total: 0, breakdown: breakdown, notes: permitData ? permitData.notes : 'Permit fees excluded.' };
-              }
-              
-              breakdown.application = permitData.applicationFee || 0;
-              breakdown.co = permitData.coFee || 0;
-
-              // Simplified logic
-              if (permitData.type === 'charleston-detailed') {
-                  const baseFee = 260 + ((projectValue - 50000)/1000)*4; // Simplified Charleston logic approx
-                  breakdown.base = baseFee > 0 ? baseFee : 50; 
-                  breakdown.planReview = breakdown.base * permitData.planReviewMultiplier;
-              } else {
-                   const baseRate = permitData.baseRate || 0.006; 
-                   breakdown.base = projectValue * baseRate;
-                   breakdown.planReview = breakdown.base * (permitData.planReviewMultiplier || 0.5);
-              }
-              
-              const total = breakdown.base + breakdown.planReview + breakdown.application + breakdown.co + breakdown.impact;
-              return { total, breakdown, notes: permitData.notes };
-          };
-
           const calculateEstimate = () => {
               // 1. Calculate Roof Area (Squares)
               const footprint = homeSqFt / stories;
@@ -186,18 +144,14 @@
               if (location.includes('greenville') || location.includes('spartanburg')) regionMultiplier = ROOFING_CONFIG.regionalMultipliers.upstate;
               else if (location.includes('charleston') || location.includes('myrtle') || location.includes('horry')) regionMultiplier = ROOFING_CONFIG.regionalMultipliers.lowcountry;
               
-              const regionalSubtotal = (baseCost + tearOffCost) * regionMultiplier;
-
-              // 4. Permits
-              const permitFees = calculatePermitFees(regionalSubtotal);
-              const total = regionalSubtotal + permitFees.total;
+              // 4. Total (Permit fees factored into overhead/base in this simplified version)
+              const total = (baseCost + tearOffCost) * regionMultiplier;
 
               setEstimate({
                   low: total * 0.90,
                   mid: total,
                   high: total * 1.10,
-                  squares: Math.round(squares),
-                  permitDetails: permitFees
+                  squares: Math.round(squares)
               });
           };
 
@@ -212,11 +166,11 @@
                         SC Roof Replacement<br/>Estimator
                      </h3>
                      <p className="text-stone-400 max-w-xl leading-relaxed mb-6">
-                        See what a roof replacement costs in your specific county. Includes tear-off, materials, labor, and verified permit fees.
+                        See what a roof replacement costs in your specific county. Includes tear-off, materials, and labor.
                      </p>
                      <div className="flex items-center gap-2 text-xs font-mono text-stone-500">
                         <Calculator size={14} />
-                        <span>v2.1 • Verified SC Data</span>
+                        <span>v2.2 • Regional Material Data</span>
                      </div>
                   </div>
 
@@ -292,20 +246,6 @@
                                      </div>
 
                                      <div className="space-y-6">
-                                        <div className={`bg-stone-900/50 p-4 border-l-2 ${estimate.permitDetails.total > 0 ? 'border-stone-600' : 'border-stone-800'}`}>
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Permit Fees</span>
-                                                <span className={`text-sm font-mono ${estimate.permitDetails.total > 0 ? 'text-stone-300' : 'text-stone-600 italic'}`}>
-                                                    {estimate.permitDetails.total > 0 ? formatCurrency(estimate.permitDetails.total) : 'Excluded / TBD'}
-                                                </span>
-                                            </div>
-                                            <div className="mt-3 pt-2 border-t border-stone-800 flex gap-2 items-start">
-                                                <Info size={12} className="text-stone-500 mt-0.5 flex-shrink-0" />
-                                                <p className="text-[10px] text-stone-500 leading-tight italic">
-                                                    {PERMIT_FEES[location].name}: {estimate.permitDetails.notes}
-                                                </p>
-                                            </div>
-                                        </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="bg-stone-900/30 p-3 rounded">
                                                 <span className="block text-[10px] text-stone-500 uppercase tracking-wider mb-1">Includes</span>
@@ -315,6 +255,14 @@
                                                 <span className="block text-[10px] text-stone-500 uppercase tracking-wider mb-1">Includes</span>
                                                 <span className="text-xs text-stone-300 font-mono">Synthetic Underlayment</span>
                                             </div>
+                                            <div className="bg-stone-900/30 p-3 rounded">
+                                                <span className="block text-[10px] text-stone-500 uppercase tracking-wider mb-1">Includes</span>
+                                                <span className="text-xs text-stone-300 font-mono">Pipe Collars/Flashing</span>
+                                            </div>
+                                            <div className="bg-stone-900/30 p-3 rounded">
+                                                <span className="block text-[10px] text-stone-500 uppercase tracking-wider mb-1">Labor</span>
+                                                <span className="text-xs text-stone-300 font-mono">Expert Install</span>
+                                            </div>
                                         </div>
                                      </div>
                                 </div>
@@ -322,7 +270,7 @@
                                     <div className="flex gap-3 mb-4 bg-stone-900 p-3 rounded-sm">
                                         <AlertTriangle size={16} className="text-stone-500 flex-shrink-0" />
                                         <p className="text-[10px] text-stone-500 leading-relaxed">
-                                            <strong className="text-stone-300">Disclaimer:</strong> Roof pitch and accessibility greatly affect price. This is a preliminary estimate.
+                                            <strong className="text-stone-300">Disclaimer:</strong> Roof pitch, accessibility, and layers to remove affect final price. This is a preliminary estimate.
                                         </p>
                                     </div>
                                     <button className="w-full bg-stone-50 text-stone-900 font-bold uppercase tracking-widest py-4 hover:bg-stone-200 transition-colors flex items-center justify-center gap-2">
