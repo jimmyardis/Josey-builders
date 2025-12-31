@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 1. ROOFING-SPECIFIC SEO -->
+    <title>Josey Builders Roofing | Sumter SC Roof Repair & Replacement</title>
+    <meta name="description" content="Expert roofing services in Sumter, SC. Metal roofs, architectural shingles, and storm damage repair. Local, licensed, and bonded family builders.">
+    <meta name="keywords" content="Roofing Sumter SC, Metal Roof, Shingle Replacement, Roof Leak Repair, Storm Damage, Local Roofer">
+    
+    <!-- Open Graph / Facebook Preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Josey Builders | The Roofing Authority">
+    <meta property="og:description" content="Don't trust your home to storm chasers. Trust Sumter's local experts. Metal & Shingle roofing services.">
+    <meta property="og:image" content="https://placehold.co/1200x630/1c1917/ffffff?text=JOSEY+ROOFING+DIVISION">
+
+    <!-- FAVICON (Roof Icon) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z%22/><polyline points=%229 22 9 12 15 12 15 22%22/></svg>">
+
+    <!-- LIBRARIES -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- FONTS -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        html { scroll-behavior: smooth; }
+        
+        /* Custom scrollbar for dropdowns */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #292524; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #57534e; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-900 selection:bg-stone-900 selection:text-white">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Icon = ({ children, ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>{children}</svg>
+        );
+        const Phone = (p) => <Icon {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></Icon>;
+        const Mail = (p) => <Icon {...p}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></Icon>;
+        const MapPin = (p) => <Icon {...p}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></Icon>;
+        const ArrowRight = (p) => <Icon {...p}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></Icon>;
+        const CheckCircle2 = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Icon>;
+        const Menu = (p) => <Icon {...p}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></Icon>;
+        const X = (p) => <Icon {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Icon>;
+        const Calculator = (p) => <Icon {...p}><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></Icon>;
+        const AlertTriangle = (p) => <Icon {...p}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></Icon>;
+        const Info = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></Icon>;
+        
+        // Roofing Specific Icons
+        const Shield = (p) => <Icon {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></Icon>;
+        const CloudRain = (p) => <Icon {...p}><line x1="16" x2="16" y1="13" y2="21"/><line x1="8" x2="8" y1="13" y2="21"/><line x1="12" x2="12" y1="15" y2="23"/><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></Icon>;
+        const Sun = (p) => <Icon {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></Icon>;
+        const Home = (p) => <Icon {...p}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></Icon>;
+
+        // --- CALCULATOR DATA ---
+        const PERMIT_FEES = {
+            'charleston-city': { name: 'City of Charleston', type: 'charleston-detailed', finishedSqFtValuation: 116.15, applicationFee: 40, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on official Charleston fee schedule.' },
+            'charleston-county': { name: 'Charleston County', type: 'valuation-estimate', baseRate: 0.007, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'County rates (outside Charleston city).' },
+            'horry-county': { name: 'Horry County', type: 'per-sqft-flat', rate: 0.35, minimum: 50, applicationFee: 0, planReviewMultiplier: 0.5, coFee: 0, notes: 'Official rate: $0.35/sq ft (min $50).' },
+            'myrtle-beach': { name: 'City of Myrtle Beach', type: 'valuation-estimate', baseRate: 0.0075, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Coastal city rates.' },
+            'cherokee-county': { name: 'Cherokee County', type: 'cherokee-valuation', valuationPerSqFt: 150, applicationFee: 40, planReviewMultiplier: 0.5, coFee: 75, notes: 'Valuation at $150/sq ft. CO: $75.' },
+            'york-county': { name: 'York County', type: 'valuation-plus-impact', baseRate: 0.006, impactFee: 0, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Includes school district impact fees.' },
+            'rock-hill': { name: 'City of Rock Hill', type: 'valuation-estimate', baseRate: 0.0065, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on Municipal Code Appendix A.' },
+            'greenville-county': { name: 'Greenville County', type: 'valuation-estimate', baseRate: 0.0078, applicationFee: 55, planReviewMultiplier: 0.5, coFee: 0, notes: 'Includes July 2025 20% increase.' },
+            'greenville-city': { name: 'City of Greenville', type: 'valuation-estimate', baseRate: 0.007, applicationFee: 60, planReviewMultiplier: 0.5, coFee: 0, notes: 'City rates typically higher than county.' },
+            'spartanburg-county': { name: 'Spartanburg County', type: 'spartanburg-bvd', scModifier: 0.85, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Uses BVD Table with 0.85 Modifier.' },
+            'richland-county': { name: 'Richland County', type: 'valuation-estimate', baseRate: 0.006, applicationFee: 55, planReviewMultiplier: 0.5, coFee: 0, notes: 'Based on FY15 schedule.' },
+            'columbia-city': { name: 'City of Columbia', type: 'valuation-estimate', baseRate: 0.0065, applicationFee: 60, planReviewMultiplier: 0.5, coFee: 0, notes: 'Uses Lama system rates.' },
+            'lexington-county': { name: 'Lexington County', type: 'valuation-estimate', baseRate: 0.0055, applicationFee: 50, planReviewMultiplier: 0.5, coFee: 0, notes: 'Same fees for contractors/homeowners.' },
+            'other-sc': { name: 'Other / Unlisted Location', type: 'none', notes: 'Permit fees vary by municipality and are NOT included in this estimate.' }
+        };
+
+        const ROOFING_CONFIG = {
+            materials: {
+                threeTab: { name: "3-Tab Shingle", costPerSq: 375, desc: "Economy protection (20-25yr)" },
+                arch: { name: "Architectural", costPerSq: 475, desc: "Standard durability (30-50yr)" },
+                metal: { name: "Metal / Seam", costPerSq: 1100, desc: "Premium longevity (50yr+)" }
+            },
+            pitchMultipliers: {
+                simple: 1.15, // 4/12 or less + waste
+                moderate: 1.30, // 6/12 to 8/12 + waste
+                steep: 1.50 // 9/12+ + waste
+            },
+            tearOffCostPerSq: 50, // Approx tear off cost per square
+            regionalMultipliers: { upstate: 0.95, midlands: 1.0, lowcountry: 1.08 }
+        };
+
+        // --- COMPONENTS ---
+
+        const LogoSVG = ({ className, color = "currentColor" }) => (
+          <svg viewBox="0 0 400 220" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 190 L50 80 L110 30" stroke={color} strokeWidth="6" fill="none" strokeLinecap="square" strokeLinejoin="miter"/>
+            <path d="M106 30 L350 30 L350 80 L145 80 Z" fill={color} />
+            <path d="M350 80 L350 190 L50 190" stroke={color} strokeWidth="6" fill="none" strokeLinecap="square" strokeLinejoin="miter"/>
+            <g transform="translate(0, 15)">
+              <text x="200" y="115" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="900" fontSize="60" fill={color} textLength="260" lengthAdjust="spacingAndGlyphs">JOSEY</text>
+              <text x="200" y="155" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="28" fill={color} textLength="260" lengthAdjust="spacingAndGlyphs">BUILDERS</text>
+            </g>
+          </svg>
+        );
+
+        const Section = ({ children, className = "", id = "" }) => (
+          <section id={id} className={`py-20 px-6 md:px-12 lg:px-24 ${className}`}>
+            {children}
+          </section>
+        );
+
+        const FadeIn = ({ children, delay = 0 }) => {
+          const [isVisible, setIsVisible] = useState(false);
+          const domRef = useRef();
+          useEffect(() => {
+            const observer = new IntersectionObserver(entries => {
+              entries.forEach(entry => setIsVisible(entry.isIntersecting));
+            });
+            const currentElement = domRef.current;
+            if (currentElement) observer.observe(currentElement);
+            return () => { if (currentElement) observer.unobserve(currentElement); };
+          }, []);
+          return (
+            <div ref={domRef} className={`transition-all duration-1000 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ transitionDelay: `${delay}ms` }}>
+              {children}
+            </div>
+          );
+        };
+
+        const RoofingCalculator = () => {
+          const [homeSqFt, setHomeSqFt] = useState(2000);
+          const [stories, setStories] = useState(1);
+          const [pitch, setPitch] = useState('moderate');
+          const [material, setMaterial] = useState('arch');
+          const [location, setLocation] = useState('charleston-city');
+          const [estimate, setEstimate] = useState(null);
+
+          const calculatePermitFees = (projectValue) => {
+              const permitData = PERMIT_FEES[location];
+              let breakdown = { base: 0, application: 0, planReview: 0, co: 0, impact: 0 };
+              
+              if (!permitData || permitData.type === 'none') {
+                  return { total: 0, breakdown: breakdown, notes: permitData ? permitData.notes : 'Permit fees excluded.' };
+              }
+              
+              breakdown.application = permitData.applicationFee || 0;
+              breakdown.co = permitData.coFee || 0;
+
+              // Simplified logic
+              if (permitData.type === 'charleston-detailed') {
+                  const baseFee = 260 + ((projectValue - 50000)/1000)*4; // Simplified Charleston logic approx
+                  breakdown.base = baseFee > 0 ? baseFee : 50; 
+                  breakdown.planReview = breakdown.base * permitData.planReviewMultiplier;
+              } else {
+                   const baseRate = permitData.baseRate || 0.006; 
+                   breakdown.base = projectValue * baseRate;
+                   breakdown.planReview = breakdown.base * (permitData.planReviewMultiplier || 0.5);
+              }
+              
+              const total = breakdown.base + breakdown.planReview + breakdown.application + breakdown.co + breakdown.impact;
+              return { total, breakdown, notes: permitData.notes };
+          };
+
+          const calculateEstimate = () => {
+              // 1. Calculate Roof Area (Squares)
+              const footprint = homeSqFt / stories;
+              const roofAreaSqFt = footprint * ROOFING_CONFIG.pitchMultipliers[pitch];
+              const squares = roofAreaSqFt / 100;
+
+              // 2. Material & Install Cost
+              const matConfig = ROOFING_CONFIG.materials[material];
+              const baseCost = squares * matConfig.costPerSq;
+              const tearOffCost = squares * ROOFING_CONFIG.tearOffCostPerSq;
+              
+              // 3. Regional Multiplier
+              let regionMultiplier = 1.0;
+              if (location.includes('greenville') || location.includes('spartanburg')) regionMultiplier = ROOFING_CONFIG.regionalMultipliers.upstate;
+              else if (location.includes('charleston') || location.includes('myrtle') || location.includes('horry')) regionMultiplier = ROOFING_CONFIG.regionalMultipliers.lowcountry;
+              
+              const regionalSubtotal = (baseCost + tearOffCost) * regionMultiplier;
+
+              // 4. Permits
+              const permitFees = calculatePermitFees(regionalSubtotal);
+              const total = regionalSubtotal + permitFees.total;
+
+              setEstimate({
+                  low: total * 0.90,
+                  mid: total,
+                  high: total * 1.10,
+                  squares: Math.round(squares),
+                  permitDetails: permitFees
+              });
+          };
+
+          useEffect(() => { calculateEstimate(); }, [homeSqFt, stories, pitch, material, location]);
+          const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+
+          return (
+            <div className="bg-stone-900 text-stone-50 border border-stone-800 shadow-2xl relative overflow-hidden">
+              <div className="p-8 md:p-12 relative z-10">
+                  <div className="mb-12 border-b border-stone-800 pb-8">
+                     <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-none mb-4">
+                        SC Roof Replacement<br/>Estimator
+                     </h3>
+                     <p className="text-stone-400 max-w-xl leading-relaxed mb-6">
+                        See what a roof replacement costs in your specific county. Includes tear-off, materials, labor, and verified permit fees.
+                     </p>
+                     <div className="flex items-center gap-2 text-xs font-mono text-stone-500">
+                        <Calculator size={14} />
+                        <span>v2.1 • Verified SC Data</span>
+                     </div>
+                  </div>
+
+                  <div className="grid lg:grid-cols-2 gap-12">
+                    {/* INPUTS */}
+                    <div className="space-y-8">
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-end">
+                                <label className="text-xs font-bold uppercase tracking-widest text-stone-400">Home Living Area</label>
+                                <span className="text-2xl font-mono text-white">{homeSqFt.toLocaleString()} sq ft</span>
+                            </div>
+                            <input type="range" min="800" max="5000" step="100" value={homeSqFt} onChange={(e) => setHomeSqFt(parseInt(e.target.value))} className="w-full h-1 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-stone-50" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase tracking-widest text-stone-400">Stories</label>
+                                <div className="flex bg-stone-800 rounded-sm p-1">
+                                    {[1, 1.5, 2].map(s => <button key={s} onClick={() => setStories(s)} className={`flex-1 py-2 text-xs font-mono transition-all ${stories === s ? 'bg-stone-600 text-white shadow-sm' : 'text-stone-500 hover:text-stone-300'}`}>{s}</button>)}
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase tracking-widest text-stone-400">Roof Pitch</label>
+                                <select value={pitch} onChange={(e) => setPitch(e.target.value)} className="w-full bg-stone-800 border-none text-stone-200 py-3 px-4 rounded-sm text-sm font-mono focus:ring-1 focus:ring-stone-500">
+                                    <option value="simple">Simple / Low</option>
+                                    <option value="moderate">Moderate (Standard)</option>
+                                    <option value="steep">Steep / Complex</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-xs font-bold uppercase tracking-widest text-stone-400">Material Type</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {Object.entries(ROOFING_CONFIG.materials).map(([key, item]) => (
+                                    <button key={key} onClick={() => setMaterial(key)} className={`py-4 px-2 border transition-all text-center flex flex-col items-center justify-center gap-1 ${material === key ? 'bg-stone-50 text-stone-900 border-stone-50' : 'bg-transparent text-stone-500 border-stone-700 hover:border-stone-500'}`}>
+                                        <span className="text-xs font-black uppercase tracking-widest text-center leading-tight">{item.name}</span>
+                                        <span className="text-[9px] opacity-70 text-center leading-tight mt-1">{item.desc}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-400">Project Location</label></div>
+                            <select value={location} onChange={(e) => setLocation(e.target.value)} className="w-full bg-stone-800 border-none text-stone-200 py-3 px-4 rounded-sm text-sm font-mono focus:ring-1 focus:ring-stone-500">
+                                <optgroup label="Charleston Area"><option value="charleston-city">City of Charleston</option><option value="charleston-county">Charleston County</option></optgroup>
+                                <optgroup label="Greenville Area"><option value="greenville-city">City of Greenville</option><option value="greenville-county">Greenville County</option></optgroup>
+                                <optgroup label="Columbia Area"><option value="columbia-city">City of Columbia</option><option value="richland-county">Richland County</option><option value="lexington-county">Lexington County</option></optgroup>
+                                <optgroup label="Myrtle Beach Area"><option value="myrtle-beach">Myrtle Beach</option><option value="horry-county">Horry County</option></optgroup>
+                                <optgroup label="Other"><option value="york-county">York County</option><option value="rock-hill">Rock Hill</option><option value="spartanburg-county">Spartanburg County</option><option value="cherokee-county">Cherokee County</option></optgroup>
+                                <optgroup label="General"><option value="other-sc">Other / Unlisted Location</option></optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* RESULTS */}
+                    <div className="bg-stone-950 border border-stone-800 p-8 flex flex-col justify-between">
+                        {estimate && (
+                            <>
+                                <div>
+                                     <div className="flex items-start justify-between mb-8 pb-8 border-b border-stone-800">
+                                        <div>
+                                            <span className="block text-xs font-mono uppercase text-stone-500 mb-1">Estimated Total</span>
+                                            <div className="text-4xl md:text-5xl font-black text-white tracking-tighter">{formatCurrency(estimate.mid)}</div>
+                                            <div className="text-xs font-mono text-stone-500 mt-2">Range: {formatCurrency(estimate.low)} - {formatCurrency(estimate.high)}</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="block text-xs font-mono uppercase text-stone-500 mb-1">Roof Size</span>
+                                            <div className="text-xl font-bold text-stone-300">{estimate.squares} Sqs</div>
+                                            <div className="text-[10px] text-stone-500">Approx {estimate.squares * 100} sq ft</div>
+                                        </div>
+                                     </div>
+
+                                     <div className="space-y-6">
+                                        <div className={`bg-stone-900/50 p-4 border-l-2 ${estimate.permitDetails.total > 0 ? 'border-stone-600' : 'border-stone-800'}`}>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Permit Fees</span>
+                                                <span className={`text-sm font-mono ${estimate.permitDetails.total > 0 ? 'text-stone-300' : 'text-stone-600 italic'}`}>
+                                                    {estimate.permitDetails.total > 0 ? formatCurrency(estimate.permitDetails.total) : 'Excluded / TBD'}
+                                                </span>
+                                            </div>
+                                            <div className="mt-3 pt-2 border-t border-stone-800 flex gap-2 items-start">
+                                                <Info size={12} className="text-stone-500 mt-0.5 flex-shrink-0" />
+                                                <p className="text-[10px] text-stone-500 leading-tight italic">
+                                                    {PERMIT_FEES[location].name}: {estimate.permitDetails.notes}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-stone-900/30 p-3 rounded">
+                                                <span className="block text-[10px] text-stone-500 uppercase tracking-wider mb-1">Includes</span>
+                                                <span className="text-xs text-stone-300 font-mono">Tear Off & Disposal</span>
+                                            </div>
+                                            <div className="bg-stone-900/30 p-3 rounded">
+                                                <span className="block text-[10px] text-stone-500 uppercase tracking-wider mb-1">Includes</span>
+                                                <span className="text-xs text-stone-300 font-mono">Synthetic Underlayment</span>
+                                            </div>
+                                        </div>
+                                     </div>
+                                </div>
+                                <div className="mt-8 pt-6 border-t border-stone-800">
+                                    <div className="flex gap-3 mb-4 bg-stone-900 p-3 rounded-sm">
+                                        <AlertTriangle size={16} className="text-stone-500 flex-shrink-0" />
+                                        <p className="text-[10px] text-stone-500 leading-relaxed">
+                                            <strong className="text-stone-300">Disclaimer:</strong> Roof pitch and accessibility greatly affect price. This is a preliminary estimate.
+                                        </p>
+                                    </div>
+                                    <button className="w-full bg-stone-50 text-stone-900 font-bold uppercase tracking-widest py-4 hover:bg-stone-200 transition-colors flex items-center justify-center gap-2">
+                                        Request Inspection <ArrowRight size={16} />
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                  </div>
+              </div>
+            </div>
+          );
+        };
+
+        const JoseyRoofing = () => {
+          const [isMenuOpen, setIsMenuOpen] = useState(false);
+          const [scrolled, setScrolled] = useState(false);
+
+          useEffect(() => {
+            const handleScroll = () => setScrolled(window.scrollY > 50);
+            window.addEventListener('scroll', handleScroll);
+            return () => window.removeEventListener('scroll', handleScroll);
+          }, []);
+
+          const navLinks = [
+            { name: 'Solutions', href: '#services' },
+            { name: 'Estimator', href: '#estimator' },
+            { name: 'Why Us', href: '#about' },
+            { name: 'Main Site', href: 'index.html' },
+          ];
+
+          return (
+            <div className="min-h-screen bg-stone-50 text-stone-900 font-sans selection:bg-stone-900 selection:text-white overflow-x-hidden">
+              
+              {/* Watermark - Rotated Logo */}
+              <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-0 overflow-hidden opacity-[0.03]">
+                 <LogoSVG className="w-[150vw] md:w-[90vw] text-black transform -rotate-12" />
+              </div>
+
+              {/* Navigation */}
+              <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-stone-50/95 backdrop-blur-md py-6 shadow-sm' : 'bg-transparent py-10'}`}>
+                <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+                  <div className="flex items-center gap-4 z-50">
+                     <a href="index.html" className="block pl-1">
+                        <LogoSVG className="h-14 w-auto transition-transform hover:scale-105" color="#1c1917" />
+                     </a>
+                     <div className="hidden md:block h-8 w-px bg-stone-300"></div>
+                     <span className="hidden md:block text-xs font-mono uppercase tracking-widest text-stone-500">Roofing Division</span>
+                  </div>
+                  
+                  <div className="hidden md:flex gap-12 text-sm font-medium tracking-widest uppercase items-center">
+                    {navLinks.map(link => (
+                      <a key={link.name} href={link.href} className="hover:text-stone-500 transition-colors relative group">
+                        {link.name}
+                        <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-stone-900 transition-all group-hover:w-full"></span>
+                      </a>
+                    ))}
+                    <a href="#contact" className="px-6 py-3 bg-stone-900 text-white hover:bg-stone-800 transition-colors">Free Inspection</a>
+                  </div>
+
+                  <button className="md:hidden z-50 text-stone-900" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                  </button>
+                </div>
+
+                <div className={`fixed inset-0 bg-stone-50 z-40 flex flex-col items-center justify-center gap-8 text-2xl font-light transition-transform duration-500 md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                  {navLinks.map(link => (
+                    <a key={link.name} href={link.href} onClick={() => setIsMenuOpen(false)} className="hover:text-stone-500 tracking-widest uppercase">{link.name}</a>
+                  ))}
+                  <a href="#contact" onClick={() => setIsMenuOpen(false)} className="mt-4 px-8 py-4 bg-stone-900 text-white text-lg tracking-widest uppercase">Get Quote</a>
+                </div>
+              </nav>
+
+              {/* Hero Section */}
+              <header className="relative min-h-screen flex flex-col justify-center px-6 md:px-24 pt-32">
+                <div className="max-w-4xl relative z-10">
+                  <FadeIn delay={100}>
+                    <div className="flex items-center gap-3 mb-6">
+                        <span className="h-px w-12 bg-stone-900"></span>
+                        <p className="text-stone-500 font-mono text-sm tracking-widest uppercase">
+                        Sumter's Roofing Authority
+                        </p>
+                    </div>
+                  </FadeIn>
+                  
+                  <FadeIn delay={300}>
+                    <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8 text-stone-900">
+                      PROTECT<br/>YOUR<br/><span className="text-stone-400">LEGACY.</span>
+                    </h1>
+                  </FadeIn>
+
+                  <FadeIn delay={500}>
+                    <p className="text-lg md:text-xl text-stone-600 max-w-xl leading-relaxed mb-12">
+                      A roof is more than shingles and metal. It's the first line of defense for your home. Trust the local builders who have been serving the Midlands since 1998.
+                    </p>
+                  </FadeIn>
+
+                  <FadeIn delay={700}>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <a href="#contact" className="px-8 py-4 bg-stone-900 text-white font-bold tracking-widest uppercase hover:bg-stone-800 transition-colors flex items-center justify-center gap-2">
+                        Get Free Inspection <ArrowRight size={18} />
+                      </a>
+                      <a href="tel:8039832862" className="px-8 py-4 border-2 border-stone-200 hover:border-stone-900 text-stone-900 font-bold tracking-widest uppercase transition-colors flex items-center justify-center">
+                        803-983-2862
+                      </a>
+                    </div>
+                  </FadeIn>
+                </div>
+              </header>
+
+              <div className="border-y border-stone-200 bg-white relative z-10">
+                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-stone-200">
+                  {[
+                    { label: 'Licensed & Bonded', value: '100% Secure' },
+                    { label: 'Serving Sumter', value: 'Since 1998' },
+                    { label: 'Estimates', value: 'Always Free' }
+                  ].map((stat, i) => (
+                    <div key={i} className="py-8 md:py-12 flex flex-col items-center justify-center text-center">
+                      <span className="text-3xl font-black mb-1">{stat.value}</span>
+                      <span className="text-xs font-mono uppercase text-stone-500 tracking-widest">{stat.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ESTIMATOR SECTION */}
+              <Section id="estimator">
+                  <div className="max-w-6xl mx-auto">
+                      <FadeIn><RoofingCalculator /></FadeIn>
+                  </div>
+              </Section>
+
+              <Section id="services" className="bg-stone-100/50">
+                <div className="max-w-7xl mx-auto">
+                  <FadeIn>
+                    <div className="flex flex-col items-start mb-16">
+                      <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">OUR SOLUTIONS</h2>
+                      <div className="h-1 w-24 bg-stone-900 mb-6"></div>
+                      <p className="text-stone-600 max-w-2xl text-sm md:text-base leading-relaxed">
+                        Whether you are looking for the longevity of metal or the classic aesthetic of architectural shingles, we install systems designed to withstand South Carolina weather.
+                      </p>
+                    </div>
+                  </FadeIn>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                      { 
+                        icon: <Sun size={40} />, 
+                        title: "Metal Roofing", 
+                        desc: "Maximum durability and energy efficiency. Standing seam metal roofs offer superior protection against high winds and storms, lasting 50+ years." 
+                      },
+                      { 
+                        icon: <Home size={40} />, 
+                        title: "Architectural Shingles", 
+                        desc: "Cost-effective beauty. We install high-grade architectural shingles that provide depth, color, and reliable waterproofing for your family." 
+                      },
+                      { 
+                        icon: <CloudRain size={40} />, 
+                        title: "Repair & Storm Damage", 
+                        desc: "Don't let a small leak become a structural problem. We handle storm damage assessments, leak repairs, and insurance coordination." 
+                      }
+                    ].map((service, idx) => (
+                      <FadeIn key={idx} delay={idx * 200}>
+                        <div className="bg-white p-10 h-full border border-stone-200 hover:border-stone-900 transition-colors group">
+                          <div className="mb-8 text-stone-300 group-hover:text-stone-900 transition-colors duration-500">{service.icon}</div>
+                          <h3 className="text-xl font-bold uppercase tracking-wide mb-4">{service.title}</h3>
+                          <p className="text-stone-600 leading-relaxed text-sm">{service.desc}</p>
+                        </div>
+                      </FadeIn>
+                    ))}
+                  </div>
+                </div>
+              </Section>
+
+              <Section id="about" className="bg-stone-900 text-stone-50">
+                <div className="max-w-4xl mx-auto text-center">
+                  <FadeIn>
+                    <div className="inline-flex items-center gap-2 border border-stone-700 px-4 py-1 rounded-full mb-8">
+                        <Shield size={14} className="text-stone-400"/>
+                        <span className="text-xs font-mono uppercase tracking-widest text-stone-400">Locals, Not Storm Chasers</span>
+                    </div>
+                    <h2 className="text-3xl md:text-5xl font-light leading-tight mb-12">"We'll be here long after the storm passes."</h2>
+                    <div className="grid md:grid-cols-2 gap-12 text-left text-stone-400 text-sm md:text-base leading-relaxed">
+                      <p>In the roofing industry, "storm chasers" come to town after bad weather, put on quick roofs, and leave before problems arise. That is not us.</p>
+                      <p>Josey Builders has been a staple in Sumter since 1998. We are your neighbors. If you ever have an issue with your roof, you know exactly where to find us.</p>
+                    </div>
+                  </FadeIn>
+                </div>
+              </Section>
+
+              <Section id="process">
+                  <div className="max-w-5xl mx-auto">
+                      <FadeIn>
+                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                            <div>
+                                <h3 className="text-4xl font-black mb-6">WHY INSPECT NOW?</h3>
+                                <p className="text-stone-600 mb-8 leading-relaxed">Most roof damage isn't visible from the ground. Small leaks in flashing or missing shingles can rot decking for years before you see a stain on your ceiling.</p>
+                                <ul className="space-y-4">
+                                    {["Extend the life of your home", "Increase property value", "Prevent mold and structural rot", "Improve energy efficiency"].map(item => (
+                                        <li key={item} className="flex items-center gap-3"><CheckCircle2 size={18} className="text-stone-900" /><span className="text-sm font-bold uppercase tracking-wide text-stone-800">{item}</span></li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="bg-stone-100 p-8 border border-stone-200">
+                                <h4 className="font-mono text-xs uppercase tracking-widest text-stone-500 mb-4">Our Simple Process</h4>
+                                <div className="space-y-6">
+                                    {[
+                                        { step: "01", title: "Free Inspection", desc: "We walk the roof and provide a transparent assessment." },
+                                        { step: "02", title: "Clear Estimate", desc: "No hidden fees. Just honest pricing for quality materials." },
+                                        { step: "03", title: "Expert Install", desc: "Clean job sites and precision installation." }
+                                    ].map(s => (
+                                        <div key={s.step} className="flex gap-4">
+                                            <span className="text-xl font-black text-stone-300">{s.step}</span>
+                                            <div><h5 className="font-bold uppercase text-sm mb-1">{s.title}</h5><p className="text-xs text-stone-500">{s.desc}</p></div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                      </FadeIn>
+                  </div>
+              </Section>
+
+              <Section id="contact">
+                <div className="max-w-6xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-16">
+                    <FadeIn>
+                      <div>
+                        <h2 className="text-6xl md:text-8xl font-black text-stone-200 mb-8 -ml-1">CONTACT</h2>
+                        <h3 className="text-3xl font-bold mb-6">Let's fix your roof.</h3>
+                        <div className="space-y-6 mb-12">
+                          <a href="tel:8039832862" className="flex items-center gap-4 text-xl font-medium hover:text-stone-600 transition-colors"><div className="w-12 h-12 bg-stone-100 flex items-center justify-center"><Phone size={20} /></div>803-983-2862</a>
+                          <a href="mailto:Josey.builders@yahoo.com" className="flex items-center gap-4 text-xl font-medium hover:text-stone-600 transition-colors"><div className="w-12 h-12 bg-stone-100 flex items-center justify-center"><Mail size={20} /></div>Josey.builders@yahoo.com</a>
+                          <div className="flex items-center gap-4 text-xl font-medium"><div className="w-12 h-12 bg-stone-100 flex items-center justify-center"><MapPin size={20} /></div>Sumter, SC</div>
+                        </div>
+                      </div>
+                    </FadeIn>
+                    <FadeIn delay={200}>
+                      <form className="bg-white p-8 md:p-12 shadow-2xl shadow-stone-200/50 border border-stone-100">
+                        <h4 className="text-sm font-bold uppercase tracking-widest text-stone-900 mb-6">Request Free Inspection</h4>
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">First Name</label><input type="text" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" /></div>
+                            <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">Last Name</label><input type="text" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" /></div>
+                          </div>
+                          <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">Email Address</label><input type="email" className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent" /></div>
+                          <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">Service Needed</label><select className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent"><option>Free Roof Inspection</option><option>Full Roof Replacement</option><option>Leak Repair</option><option>Storm Damage Assessment</option></select></div>
+                          <div className="space-y-2"><label className="text-xs font-bold uppercase tracking-widest text-stone-500">Message / Issue</label><textarea rows="4" placeholder="Tell us about your roof..." className="w-full border-b-2 border-stone-200 py-2 focus:border-stone-900 outline-none transition-colors bg-transparent resize-none"></textarea></div>
+                          <button className="w-full bg-stone-900 text-white font-bold tracking-widest uppercase py-4 hover:bg-stone-800 transition-colors mt-4">Submit Request</button>
+                        </div>
+                      </form>
+                    </FadeIn>
+                  </div>
+                </div>
+              </Section>
+
+              <footer className="bg-stone-50 border-t border-stone-200 py-12">
+                <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all"><LogoSVG className="h-10 w-auto" color="#1c1917" /></div>
+                  <div className="text-right"><p className="text-stone-400 text-xs font-mono uppercase tracking-widest">© {new Date().getFullYear()} Josey Builders. All Rights Reserved.</p><a href="index.html" className="text-[10px] font-bold uppercase tracking-widest text-stone-300 hover:text-stone-900 mt-2 block">Back to Main Site</a></div>
+                </div>
+              </footer>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<JoseyRoofing />);
+    </script>
+</body>
+</html>
